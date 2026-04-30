@@ -91,27 +91,10 @@ def asegurar_modelo_sr():
 
 
 def upscale_imagen(img_pil, ancho_obj, alto_obj):
-    try:
-        import cv2
-        from cv2 import dnn_superres
-        if not asegurar_modelo_sr():
-            raise RuntimeError("Modelo SR no disponible")
-        img_rgb = img_pil.convert("RGB")
-        img_np = np.array(img_rgb)
-        img_bgr = cv2.cvtColor(img_np, cv2.COLOR_RGB2BGR)
-        sr = dnn_superres.DnnSuperResImpl_create()
-        sr.readModel(FSRCNN_PATH)
-        sr.setModel("fsrcnn", 4)
-        img_up = sr.upsample(img_bgr)
-        img_out = Image.fromarray(cv2.cvtColor(img_up, cv2.COLOR_BGR2RGB))
-        if img_out.size != (ancho_obj, alto_obj):
-            img_out = img_out.resize((ancho_obj, alto_obj), Image.LANCZOS)
-        return img_out
-    except:
-        img_out = img_pil.resize((ancho_obj, alto_obj), Image.LANCZOS)
-        img_out = img_out.filter(ImageFilter.UnsharpMask(radius=2.0, percent=180, threshold=2))
-        img_out = img_out.filter(ImageFilter.UnsharpMask(radius=0.5, percent=80, threshold=1))
-        return img_out
+    img_out = img_pil.resize((ancho_obj, alto_obj), Image.LANCZOS)
+    img_out = img_out.filter(ImageFilter.UnsharpMask(radius=2.0, percent=180, threshold=2))
+    img_out = img_out.filter(ImageFilter.UnsharpMask(radius=0.5, percent=80, threshold=1))
+    return img_out
 
 
 def restaurar_imagen(bytes_ia, metadatos, ruta_salida):
