@@ -13,7 +13,6 @@ from PIL import Image, ImageFilter
 from google import genai
 from google.genai import types
 import urllib.request
-import numpy as np
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  # 20MB máximo
