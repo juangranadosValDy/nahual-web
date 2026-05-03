@@ -16,7 +16,11 @@ import urllib.request
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  # 20MB máximo
+from flask import send_from_directory
 
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    return send_from_directory('static', filename)
 # --- CONFIGURACIÓN ---
 API_KEY = os.environ.get("GEMINI_API_KEY", "")
 MODELO = "gemini-3-pro-image-preview"
