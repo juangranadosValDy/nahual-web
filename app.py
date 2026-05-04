@@ -7,7 +7,7 @@ import os
 import io
 import uuid
 import base64
-from flask import Flask, request, jsonify, send_file, render_template
+from flask import Flask, request, jsonify, send_file, render_template, session, send_from_directory
 from werkzeug.utils import secure_filename
 from PIL import Image, ImageFilter
 from google import genai
@@ -16,11 +16,18 @@ import urllib.request
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  # 20MB máximo
-from flask import send_from_directory
+app.secret_key = os.environ.get("SECRET_KEY", "nahual_secret_2026")
+
+from auth import auth_bp, init_db, tiene_tokens, descontar_token
+app.register_blueprint(auth_bp)
+
+with app.app_context():
+    init_db()
 
 @app.route('/static/<path:filename>')
 def static_files(filename):
     return send_from_directory('static', filename)
+
 # --- CONFIGURACIÓN ---
 API_KEY = os.environ.get("GEMINI_API_KEY", "")
 MODELO = "gemini-3-pro-image-preview"
@@ -81,16 +88,6 @@ def leer_metadatos(ruta):
         return {"ancho": ancho, "alto": alto, "dpi_x": dpi_x, "dpi_y": dpi_y, "formato": formato}
     except:
         return {"ancho": None, "alto": None, "dpi_x": 72.0, "dpi_y": 72.0, "formato": "JPEG"}
-
-
-def asegurar_modelo_sr():
-    if os.path.exists(FSRCNN_PATH):
-        return True
-    try:
-        urllib.request.urlretrieve(FSRCNN_URL, FSRCNN_PATH)
-        return True
-    except:
-        return False
 
 
 def upscale_imagen(img_pil, ancho_obj, alto_obj):
@@ -163,7 +160,6 @@ def procesar_con_gemini(ruta_imagen, accion):
         if not bytes_resultado:
             return None, "Gemini no devolvió imagen."
 
-        # Guardar con upscaling
         nombre_out = f"{uuid.uuid4().hex}_resultado.jpg"
         ruta_out = os.path.join(OUTPUT_FOLDER, nombre_out)
         exito = restaurar_imagen(bytes_resultado, metadatos, ruta_out)
@@ -171,7 +167,6 @@ def procesar_con_gemini(ruta_imagen, accion):
         if exito:
             return ruta_out, None
         else:
-            # Respaldo sin upscaling
             with open(ruta_out, "wb") as f:
                 f.write(bytes_resultado)
             return ruta_out, None
@@ -189,6 +184,16 @@ def index():
 
 @app.route("/procesar", methods=["POST"])
 def procesar():
+    # Verificar sesión y tokens
+    if not tiene_tokens():
+        return jsonify({
+            "status": "error",
+            "msg": "Sin tokens disponibles. Adquiere un plan para continuar.",
+            "requiere_login": True
+        })
+
+    usuario_id = session.get('usuario_id')
+
     if "foto" not in request.files:
         return jsonify({"status": "error", "msg": "No se recibió ninguna imagen."})
 
@@ -201,15 +206,12 @@ def procesar():
     if not allowed_file(archivo.filename):
         return jsonify({"status": "error", "msg": "Formato no soportado. Usa JPG, PNG o WEBP."})
 
-    # Guardar archivo temporalmente
     nombre_seguro = f"{uuid.uuid4().hex}_{secure_filename(archivo.filename)}"
     ruta_entrada = os.path.join(UPLOAD_FOLDER, nombre_seguro)
     archivo.save(ruta_entrada)
 
-    # Procesar
     ruta_resultado, error = procesar_con_gemini(ruta_entrada, accion)
 
-    # Limpiar entrada
     try:
         os.remove(ruta_entrada)
     except:
@@ -218,7 +220,10 @@ def procesar():
     if error:
         return jsonify({"status": "error", "msg": error})
 
-    # Devolver preview en base64 + ID para descarga
+    # Descontar token solo si el procesamiento fue exitoso
+    if usuario_id:
+        descontar_token(usuario_id, accion)
+
     resultado_id = os.path.basename(ruta_resultado)
     try:
         img_preview = Image.open(ruta_resultado)
@@ -238,7 +243,6 @@ def procesar():
 
 @app.route("/descargar/<resultado_id>")
 def descargar(resultado_id):
-    # Validar que el ID no contenga rutas maliciosas
     if ".." in resultado_id or "/" in resultado_id or "\\" in resultado_id:
         return "Solicitud inválida.", 400
 
