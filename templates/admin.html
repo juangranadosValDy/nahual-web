@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nahual Studio — Panel Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Exo+2:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+    --negro: #050810;
+    --carbon: #0A0F1E;
+    --azul: #0080FF;
+    --azul-claro: #1034A6;
+    --cyan: #3FE0D0;
+    --cyan-muted: #81D8D0;
+    --glow-azul: rgba(0,128,255,0.35);
+    --glow-cyan: rgba(63,224,208,0.3);
+    --blanco: #EEF4FF;
+    --blanco-muted: #7A9CC4;
+    --verde: #4CAF50;
+    --rojo: #FF6B6B;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background: var(--negro);
+    color: var(--blanco);
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at 20% 50%, rgba(0,128,255,0.05) 0%, transparent 60%),
+        repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(0,128,255,0.02) 60px, rgba(0,128,255,0.02) 61px),
+        repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(0,128,255,0.02) 60px, rgba(0,128,255,0.02) 61px);
+    pointer-events: none;
+    z-index: 0;
+}
+
+nav {
+    position: relative;
+    z-index: 5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 4%;
+    border-bottom: 1px solid rgba(0,128,255,0.2);
+    background: rgba(5,8,16,0.95);
+    backdrop-filter: blur(10px);
+}
+
+.nav-logo {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    color: var(--azul);
+    text-shadow: 0 0 15px var(--glow-azul);
+}
+
+.nav-badge {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    color: var(--cyan);
+    background: rgba(63,224,208,0.08);
+    border: 1px solid rgba(63,224,208,0.2);
+    padding: 0.3rem 0.8rem;
+}
+
+.nav-links {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.btn-nav {
+    background: transparent;
+    border: 1px solid rgba(0,128,255,0.2);
+    color: var(--blanco-muted);
+    padding: 0.4rem 0.9rem;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    transition: 0.3s;
+    text-decoration: none;
+}
+
+.btn-nav:hover { border-color: var(--azul); color: var(--azul); }
+
+.main {
+    position: relative;
+    z-index: 1;
+    padding: 2.5rem 4%;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1px;
+    background: rgba(0,128,255,0.1);
+    border: 1px solid rgba(0,128,255,0.15);
+    margin-bottom: 2.5rem;
+}
+
+.stat-card {
+    background: var(--negro);
+    padding: 1.5rem 1.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.stat-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--blanco-muted);
+}
+
+.stat-valor {
+    font-family: 'Orbitron', monospace;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--azul);
+    text-shadow: 0 0 15px var(--glow-azul);
+    line-height: 1;
+}
+
+.stat-valor.cyan { color: var(--cyan); text-shadow: 0 0 15px var(--glow-cyan); }
+.stat-valor.verde { color: var(--verde); text-shadow: 0 0 10px rgba(76,175,80,0.3); }
+
+.seccion-titulo {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 1.2rem;
+    text-shadow: 0 0 10px var(--glow-cyan);
+}
+
+.tabla-wrap {
+    border: 1px solid rgba(0,128,255,0.15);
+    overflow-x: auto;
+    margin-bottom: 2.5rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background: rgba(0,128,255,0.08);
+    border-bottom: 1px solid rgba(0,128,255,0.2);
+}
+
+th {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--azul);
+    padding: 1rem 1.2rem;
+    text-align: left;
+    white-space: nowrap;
+}
+
+td {
+    padding: 0.9rem 1.2rem;
+    font-size: 0.82rem;
+    color: var(--blanco-muted);
+    border-bottom: 1px solid rgba(0,128,255,0.06);
+    white-space: nowrap;
+}
+
+tr:hover td { background: rgba(0,128,255,0.03); }
+
+.badge-admin {
+    background: rgba(0,128,255,0.15);
+    border: 1px solid rgba(0,128,255,0.3);
+    color: var(--azul);
+    font-family: 'Orbitron', monospace;
+    font-size: 0.45rem;
+    letter-spacing: 0.2em;
+    padding: 0.2rem 0.5rem;
+}
+
+.tokens-display {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.8rem;
+    color: var(--cyan);
+}
+
+.input-tokens {
+    background: var(--negro);
+    border: 1px solid rgba(0,128,255,0.2);
+    color: white;
+    padding: 0.4rem 0.6rem;
+    width: 70px;
+    font-size: 0.8rem;
+    outline: none;
+    font-family: 'Exo 2', sans-serif;
+    text-align: center;
+}
+
+.input-tokens:focus { border-color: var(--azul); }
+
+.btn-asignar {
+    background: linear-gradient(135deg, var(--azul-claro), var(--azul));
+    border: none;
+    color: white;
+    padding: 0.4rem 0.9rem;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    transition: 0.3s;
+    white-space: nowrap;
+}
+
+.btn-asignar:hover { box-shadow: 0 0 15px var(--glow-azul); }
+
+.msg-global {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(10,15,30,0.95);
+    border: 1px solid var(--azul);
+    color: var(--cyan);
+    font-family: 'Orbitron', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    padding: 0.8rem 1.5rem;
+    box-shadow: 0 0 20px var(--glow-azul);
+    display: none;
+    z-index: 100;
+    white-space: nowrap;
+}
+
+.historial-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 1.2rem;
+    border-bottom: 1px solid rgba(0,128,255,0.06);
+    font-size: 0.8rem;
+}
+
+.historial-item:last-child { border-bottom: none; }
+.historial-accion { color: var(--cyan); font-family: 'Orbitron', monospace; font-size: 0.6rem; letter-spacing: 0.15em; }
+.historial-fecha { color: rgba(122,156,196,0.5); font-size: 0.7rem; }
+.historial-usuario { color: var(--blanco-muted); }
+</style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-logo">Nahual Studio <span class="nav-badge">ADMIN</span></div>
+    <div class="nav-links">
+        <a href="/" class="btn-nav">← Volver al sitio</a>
+        <button onclick="cerrarSesionAdmin()" class="btn-nav">Cerrar sesión</button>
+    </div>
+</nav>
+
+<div class="main">
+
+    <!-- ESTADÍSTICAS -->
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+            <div class="stat-label">Total usuarios</div>
+            <div class="stat-valor" id="statUsuarios">—</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Tokens activos</div>
+            <div class="stat-valor cyan" id="statTokens">—</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Fotos procesadas</div>
+            <div class="stat-valor verde" id="statProcesadas">—</div>
+        </div>
+    </div>
+
+    <!-- TABLA DE USUARIOS -->
+    <div class="seccion-titulo">// Usuarios registrados</div>
+    <div class="tabla-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>Nombre</th>
+                    <th>Tokens</th>
+                    <th>Registro</th>
+                    <th>Último acceso</th>
+                    <th>Asignar tokens</th>
+                </tr>
+            </thead>
+            <tbody id="tablaUsuarios">
+                <tr><td colspan="7" style="text-align:center;padding:2rem;color:rgba(122,156,196,0.4);">Cargando...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- HISTORIAL RECIENTE -->
+    <div class="seccion-titulo">// Actividad reciente</div>
+    <div class="tabla-wrap" id="historialWrap">
+        <div style="padding:2rem;text-align:center;color:rgba(122,156,196,0.4);font-size:0.8rem;">Cargando...</div>
+    </div>
+
+</div>
+
+<div class="msg-global" id="msgGlobal"></div>
+
+<script>
+function mostrarMsg(msg, error=false) {
+    const el = document.getElementById('msgGlobal');
+    el.textContent = msg;
+    el.style.borderColor = error ? 'var(--rojo)' : 'var(--azul)';
+    el.style.color = error ? 'var(--rojo)' : 'var(--cyan)';
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 3000);
+}
+
+function formatFecha(fecha) {
+    if (!fecha) return '—';
+    return fecha.split('T')[0];
+}
+
+async function cargarUsuarios() {
+    try {
+        const res = await fetch('/admin/usuarios');
+        const data = await res.json();
+
+        if (data.status !== 'ok') {
+            window.location.href = '/';
+            return;
+        }
+
+        const usuarios = data.usuarios;
+
+        // Stats
+        const totalTokens = usuarios.reduce((sum, u) => sum + u.tokens, 0);
+        document.getElementById('statUsuarios').textContent = usuarios.length;
+        document.getElementById('statTokens').textContent = totalTokens;
+
+        // Tabla
+        const tbody = document.getElementById('tablaUsuarios');
+        if (usuarios.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:rgba(122,156,196,0.4);">Sin usuarios registrados</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = usuarios.map(u => `
+            <tr>
+                <td style="color:rgba(122,156,196,0.4);font-family:'Orbitron',monospace;font-size:0.65rem;">#${u.id}</td>
+                <td style="color:var(--blanco);">${u.email} ${u.es_admin ? '<span class="badge-admin">ADMIN</span>' : ''}</td>
+                <td>${u.nombre || '—'}</td>
+                <td><span class="tokens-display">◆ ${u.tokens}</span></td>
+                <td>${formatFecha(u.fecha_registro)}</td>
+                <td>${formatFecha(u.ultimo_acceso)}</td>
+                <td style="display:flex;gap:0.5rem;align-items:center;">
+                    <input type="number" class="input-tokens" id="tokens_${u.id}" value="10" min="1" max="999">
+                    <button class="btn-asignar" onclick="asignarTokens(${u.id})">ASIGNAR</button>
+                </td>
+            </tr>
+        `).join('');
+
+    } catch(e) {
+        mostrarMsg('Error cargando datos.', true);
+    }
+}
+
+async function cargarHistorial() {
+    try {
+        const res = await fetch('/admin/historial');
+        const data = await res.json();
+
+        const wrap = document.getElementById('historialWrap');
+
+        if (!data.historial || data.historial.length === 0) {
+            wrap.innerHTML = '<div style="padding:2rem;text-align:center;color:rgba(122,156,196,0.4);font-size:0.8rem;">Sin actividad aún</div>';
+            document.getElementById('statProcesadas').textContent = '0';
+            return;
+        }
+
+        document.getElementById('statProcesadas').textContent = data.historial.length;
+
+        wrap.innerHTML = data.historial.slice(0, 20).map(h => `
+            <div class="historial-item">
+                <span class="historial-usuario">${h.email || 'Usuario #' + h.usuario_id}</span>
+                <span class="historial-accion">${h.accion.toUpperCase()}</span>
+                <span class="historial-fecha">${formatFecha(h.fecha)}</span>
+            </div>
+        `).join('');
+
+    } catch(e) {
+        document.getElementById('statProcesadas').textContent = '—';
+    }
+}
+
+async function asignarTokens(usuarioId) {
+    const input = document.getElementById(`tokens_${usuarioId}`);
+    const tokens = parseInt(input.value);
+
+    if (!tokens || tokens <= 0) {
+        mostrarMsg('Ingresa una cantidad válida.', true);
+        return;
+    }
+
+    const res = await fetch('/admin/asignar_tokens', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({usuario_id: usuarioId, tokens})
+    });
+
+    const data = await res.json();
+
+    if (data.status === 'ok') {
+        mostrarMsg(data.msg);
+        cargarUsuarios();
+    } else {
+        mostrarMsg(data.msg, true);
+    }
+}
+
+async function cerrarSesionAdmin() {
+    await fetch('/logout', {method: 'POST'});
+    window.location.href = '/';
+}
+
+// Cargar al inicio
+cargarUsuarios();
+cargarHistorial();
+
+// Refrescar cada 30 segundos
+setInterval(() => {
+    cargarUsuarios();
+    cargarHistorial();
+}, 30000);
+</script>
+</body>
+</html>
