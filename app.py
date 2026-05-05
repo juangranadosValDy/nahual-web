@@ -7,7 +7,7 @@ import os
 import io
 import uuid
 import base64
-from flask import Flask, request, jsonify, send_file, render_template, session, send_from_directory
+from flask import Flask, request, jsonify, send_file, render_template, session, send_from_directory, redirect
 from werkzeug.utils import secure_filename
 from PIL import Image, ImageFilter
 from google import genai
@@ -255,11 +255,29 @@ def descargar(resultado_id):
         download_name="nahual_studio_restauracion.jpg"
     )
 
+@app.route("/admin")
+def admin_panel():
+    if not session.get('es_admin'):
+        return redirect('/')
+    return render_template("admin.html")
+
+@auth_bp.route('/admin/historial', methods=['GET'])
+@admin_requerido  
+def historial():
+    conn = get_db()
+    items = conn.execute('''
+        SELECT h.*, u.email 
+        FROM historial h 
+        LEFT JOIN usuarios u ON h.usuario_id = u.id 
+        ORDER BY h.fecha DESC 
+        LIMIT 50
+    ''').fetchall()
+    conn.close()
+    return jsonify({"status": "ok", "historial": [dict(i) for i in items]})
 
 @app.route("/health")
 def health():
     return jsonify({"status": "ok", "servicio": "Nahual Studio"})
-
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
