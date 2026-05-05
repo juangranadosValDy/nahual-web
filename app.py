@@ -261,20 +261,6 @@ def admin_panel():
         return redirect('/')
     return render_template("admin.html")
 
-@auth_bp.route('/admin/historial', methods=['GET'])
-@admin_requerido  
-def historial():
-    conn = get_db()
-    items = conn.execute('''
-        SELECT h.*, u.email 
-        FROM historial h 
-        LEFT JOIN usuarios u ON h.usuario_id = u.id 
-        ORDER BY h.fecha DESC 
-        LIMIT 50
-    ''').fetchall()
-    conn.close()
-    return jsonify({"status": "ok", "historial": [dict(i) for i in items]})
-
 @app.route("/health")
 def health():
     return jsonify({"status": "ok", "servicio": "Nahual Studio"})
