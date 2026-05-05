@@ -129,7 +129,7 @@ def registro():
         conn = get_db()
         conn.execute('''
             INSERT INTO usuarios (email, password, nombre, tokens, fecha_registro)
-            VALUES (?, ?, ?, 0, ?)
+            VALUES (?, ?, ?, 1, ?)
         ''', (email, password, nombre, datetime.now().isoformat()))
         conn.commit()
         
