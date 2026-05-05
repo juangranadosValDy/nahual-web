@@ -50,8 +50,7 @@ PROMPTS = {
         "Hola, por favor ayudame a restaurar esta fotografía, necesito que se vea como si fuera recién tomada con cámara profesional. "
         "Ajustando color e iluminación, pero sin añadir absolutamente ningún detalle que pueda alterar el resultado y que deje de parecerse al original. "
         "Pero por sobre todo, respeta los rasgos faciales, para que la persona no se deje de parecer a la original. "
-        "El resultado final debe parecer la misma fotografía pero tomada con una cámara de alta gama, sin que se note que ha sido editada digitalmente. "
-        "En el caso de la piel, analiza la apariencia de la persona, edad, género, etnia y condiciones de iluminación para aplicar una mejora personalizada que mantenga su identidad visual única, evitando cualquier resultado genérico o artificial."
+        "El resultado final debe parecer la misma fotografía pero tomada con una cámara de alta gama, sin que se note que ha sido editada digitalmente. "    
     ),
     "colorizar": (
         "Aplica color a esta imagen de forma histórica y fotográficamente precisa. "
