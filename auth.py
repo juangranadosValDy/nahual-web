@@ -47,17 +47,7 @@ def init_db():
         )
     ''')
 
-    # Crear admin por defecto si no existe
-    admin_email = os.environ.get("ADMIN_EMAIL", "admin@nahualstudio.com")
-    admin_pass = os.environ.get("ADMIN_PASS", "nahual2026")
-    
-    cursor.execute("SELECT id FROM usuarios WHERE email = ?", (admin_email,))
-    if not cursor.fetchone():
-        cursor.execute('''
-            INSERT INTO usuarios (email, password, nombre, tokens, es_admin, fecha_registro)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ''', (admin_email, admin_pass, "Admin", 9999, 1, datetime.now().isoformat()))
-    
+
     conn.commit()
     conn.close()
 
