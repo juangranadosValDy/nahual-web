@@ -141,14 +141,20 @@ def procesar_con_gemini(ruta_imagen, accion):
 
         parts = [
             types.Part.from_bytes(data=img_data, mime_type=mime),
-            types.Part.from_text(text=prompt)
+            types.Part.from_text(text=prompt),
+            types.Part.from_text(text="IMPORTANTE: Genera el resultado en la máxima resolución posible, equivalente a 4K. Preserva cada detalle de la imagen original.")
         ]
 
         response = client.models.generate_content(
-            model=MODELO,
-            contents=[types.Content(role="user", parts=parts)]
+    model=MODELO,
+    contents=[types.Content(role="user", parts=parts)],
+    config=types.GenerateContentConfig(
+        response_modalities=["IMAGE", "TEXT"],
+        image_generation_config=types.ImageGenerationConfig(
+            number_of_images=1,
         )
-
+    )
+)
         bytes_resultado = None
         if response.candidates and response.candidates[0].content:
             for part in response.candidates[0].content.parts:
