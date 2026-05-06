@@ -1214,6 +1214,16 @@ function actualizarNavUsuario(datos) {
     const navU = document.getElementById('navUsuario');
     navU.style.display = 'flex';
     document.getElementById('navTokens').textContent = `◆ ${datos.tokens} tokens`;
+    
+    if (datos.es_admin) {
+        const btnAdmin = document.createElement('a');
+        btnAdmin.href = '/admin';
+        btnAdmin.textContent = 'ADMIN';
+        btnAdmin.style.cssText = 'background:transparent;border:1px solid var(--cyan);color:var(--cyan);padding:0.4rem 0.8rem;font-family:Orbitron,monospace;font-size:0.55rem;letter-spacing:0.15em;text-decoration:none;transition:0.3s;';
+        btnAdmin.onmouseover = () => { btnAdmin.style.background = 'rgba(63,224,208,0.1)'; };
+        btnAdmin.onmouseout = () => { btnAdmin.style.background = 'transparent'; };
+        navU.insertBefore(btnAdmin, navU.firstChild);
+    }
 }
 async function iniciarSesion() {
     const email = document.getElementById('loginEmail').value.trim();
