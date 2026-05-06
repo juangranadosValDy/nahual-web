@@ -146,15 +146,15 @@ def procesar_con_gemini(ruta_imagen, accion):
         ]
 
         response = client.models.generate_content(
-    model=MODELO,
-    contents=[types.Content(role="user", parts=parts)],
-    config=types.GenerateContentConfig(
-        response_modalities=["IMAGE", "TEXT"],
-        image_generation_config=types.ImageGenerationConfig(
-            number_of_images=1,
+            model=MODELO,
+            contents=[types.Content(role="user", parts=parts)],
+            config=types.GenerateContentConfig(
+                response_modalities=["IMAGE", "TEXT"],
+                image_generation_config=types.ImageGenerationConfig(
+                    number_of_images=1,
+                )
+            )
         )
-    )
-)
         bytes_resultado = None
         if response.candidates and response.candidates[0].content:
             for part in response.candidates[0].content.parts:
