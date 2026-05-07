@@ -8,8 +8,8 @@
     const ctx = canvas.getContext('2d');
     let W, H, particulas;
     let mouse = { x: -9999, y: -9999 };
-    const RADIO_MOUSE = 120;
-    const NUM_PARTICULAS = 80;
+    const RADIO_MOUSE = 150;
+    const NUM_PARTICULAS = 140;
     const DIST_LINEA = 130;
 
     function resize() {
@@ -26,12 +26,18 @@
                 vx: (Math.random() - 0.5) * 0.3,
                 vy: (Math.random() - 0.5) * 0.3,
                 r: Math.random() * 1.5 + 0.5,
+                brillo: 0, // brillo actual interpolado
             });
         }
     }
 
     function distancia(a, b) {
         return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+    }
+
+    // Easing suave: curva cúbica
+    function easeOut(t) {
+        return 1 - Math.pow(1 - t, 3);
     }
 
     function dibujar() {
@@ -44,32 +50,35 @@
             if (p.x < 0 || p.x > W) p.vx *= -1;
             if (p.y < 0 || p.y > H) p.vy *= -1;
 
-            // Distancia al mouse
+            // Calcular brillo objetivo según distancia al mouse
             const dm = distancia(p, mouse);
-            const cercaMouse = dm < RADIO_MOUSE;
+            const influencia = dm < RADIO_MOUSE
+                ? easeOut(1 - dm / RADIO_MOUSE)
+                : 0;
 
-            // Color y brillo según proximidad al mouse
-            const alpha = cercaMouse
-                ? 0.4 + 0.5 * (1 - dm / RADIO_MOUSE)
-                : 0.12;
-            const radio = cercaMouse
-                ? p.r + 1.2 * (1 - dm / RADIO_MOUSE)
-                : p.r;
-            const color = cercaMouse
-                ? `rgba(63,224,208,${alpha})`
-                : `rgba(0,128,255,${alpha})`;
+            // Interpolar brillo actual hacia el objetivo (suave)
+            p.brillo += (influencia - p.brillo) * 0.06;
 
-            // Glow suave si está cerca del mouse
-            if (cercaMouse) {
-                ctx.shadowBlur = 8 * (1 - dm / RADIO_MOUSE);
-                ctx.shadowColor = 'rgba(63,224,208,0.5)';
+            // Alpha y radio basados en brillo interpolado
+            const alpha = 0.1 + p.brillo * 0.55;
+            const radio = p.r + p.brillo * 1.4;
+
+            // Glow suave proporcional al brillo
+            if (p.brillo > 0.05) {
+                ctx.shadowBlur = p.brillo * 10;
+                ctx.shadowColor = `rgba(63,224,208,${p.brillo * 0.6})`;
             } else {
                 ctx.shadowBlur = 0;
             }
 
+            // Color: mezcla entre azul (lejos) y cyan (cerca)
+            const r = Math.round(0 + p.brillo * 63);
+            const g = Math.round(128 + p.brillo * 96);
+            const b2 = Math.round(255 - p.brillo * 25);
+            ctx.fillStyle = `rgba(${r},${g},${b2},${alpha})`;
+
             ctx.beginPath();
             ctx.arc(p.x, p.y, radio, 0, Math.PI * 2);
-            ctx.fillStyle = color;
             ctx.fill();
         });
 
@@ -80,21 +89,19 @@
             for (let j = i + 1; j < particulas.length; j++) {
                 const d = distancia(particulas[i], particulas[j]);
                 if (d < DIST_LINEA) {
-                    const dm_i = distancia(particulas[i], mouse);
-                    const dm_j = distancia(particulas[j], mouse);
-                    const cercaMouse = dm_i < RADIO_MOUSE || dm_j < RADIO_MOUSE;
+                    const brilloMax = Math.max(particulas[i].brillo, particulas[j].brillo);
+                    const alphaBase = 0.03 * (1 - d / DIST_LINEA);
+                    const alphaBrillo = brilloMax * 0.15 * (1 - d / DIST_LINEA);
+                    const alpha = alphaBase + alphaBrillo;
 
-                    const alpha = cercaMouse
-                        ? 0.15 * (1 - d / DIST_LINEA)
-                        : 0.04 * (1 - d / DIST_LINEA);
-                    const color = cercaMouse
-                        ? `rgba(63,224,208,${alpha})`
-                        : `rgba(0,128,255,${alpha})`;
+                    const r = Math.round(0 + brilloMax * 63);
+                    const g = Math.round(128 + brilloMax * 96);
+                    const b2 = 255;
 
                     ctx.beginPath();
                     ctx.moveTo(particulas[i].x, particulas[i].y);
                     ctx.lineTo(particulas[j].x, particulas[j].y);
-                    ctx.strokeStyle = color;
+                    ctx.strokeStyle = `rgba(${r},${g},${b2},${alpha})`;
                     ctx.lineWidth = 0.5;
                     ctx.stroke();
                 }
@@ -117,13 +124,18 @@
 window.addEventListener('load', async () => {
     // Lottie shutter
     try {
-        new DotLottie({
-            autoplay: true,
-            loop: true,
-            canvas: document.getElementById('lottieShutter'),
-            src: '/static/animations/Cam_Shutter.lottie',
-        });
-    } catch (e) { console.log('Lottie:', e); }
+        const LottiePlayer = window.DotLottie || (window.dotLottieWeb && window.dotLottieWeb.DotLottie);
+        if (LottiePlayer) {
+            new LottiePlayer({
+                autoplay: true,
+                loop: true,
+                canvas: document.getElementById('lottieShutter'),
+                src: '/static/animations/Cam_Shutter.lottie',
+            });
+        } else {
+            console.log('DotLottie no encontrado en window');
+        }
+    } catch (e) { console.log('Lottie error:', e); }
 
     // Verificar sesión
     try {
