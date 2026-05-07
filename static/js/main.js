@@ -123,19 +123,15 @@
 // ==================== INICIALIZACIÓN AL CARGAR ====================
 window.addEventListener('load', async () => {
     // Lottie shutter
-    try {
-        const LottiePlayer = window.DotLottie || (window.dotLottieWeb && window.dotLottieWeb.DotLottie);
-        if (LottiePlayer) {
-            new LottiePlayer({
-                autoplay: true,
-                loop: true,
-                canvas: document.getElementById('lottieShutter'),
-                src: '/static/animations/Cam_Shutter.lottie',
-            });
-        } else {
-            console.log('DotLottie no encontrado en window');
-        }
-    } catch (e) { console.log('Lottie error:', e); }
+try {
+    lottie.loadAnimation({
+        container: document.getElementById('lottieShutter'),
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: '/static/animations/cam_shutter.json'
+    });
+} catch (e) { console.log('Lottie:', e); }
 
     // Verificar sesión
     try {
