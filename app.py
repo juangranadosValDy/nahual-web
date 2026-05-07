@@ -45,6 +45,7 @@ PROMPTS = {
         "Pero por sobre todo, respeta los rasgos faciales, para que la persona no se deje de parecer a la original. "
         "El resultado final debe parecer la misma fotografía pero tomada con una cámara de alta gama, sin que se note que ha sido editada digitalmente. "
         "IMPORTANTE: Genera el resultado en la máxima resolución posible. Preserva cada detalle de la imagen original."
+        "INDISPENSABLE: No alterar, ni agregar ningún detalle que pueda alterar el resultado o alejarlo de la foto original"
     ),
     "colorizar": (
         "Aplica color a esta imagen de forma histórica y fotográficamente precisa. "
