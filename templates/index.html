@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nahual Studio — Restauración con IA</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Exo+2:wght@300;400&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@lottiefiles/dotlottie-web@0.34.0/dist/dotlottie-web.iife.js"></script>
 <style>
 :root {
     --negro: #050810;
@@ -197,12 +198,6 @@ nav {
     height: 100%;
 }
 
-.upload-icon {
-    font-size: 2.8rem;
-    margin-bottom: 1rem;
-    filter: drop-shadow(0 0 10px var(--azul));
-}
-
 .upload-texto {
     font-family: 'Orbitron', monospace;
     font-size: 0.8rem;
@@ -307,30 +302,9 @@ nav {
     display: none;
     margin-top: 1.5rem;
     text-align: center;
-    padding: 1.5rem;
+    padding: 2rem 1.5rem;
     border: 1px solid rgba(0,128,255,0.2);
     background: rgba(0,128,255,0.04);
-}
-
-.progress-barra-wrap {
-    width: 100%;
-    height: 2px;
-    background: rgba(0,128,255,0.15);
-    margin-bottom: 1rem;
-    overflow: hidden;
-}
-
-.progress-barra {
-    height: 100%;
-    background: linear-gradient(90deg, var(--azul), var(--cyan));
-    animation: carga 2s ease-in-out infinite;
-    box-shadow: 0 0 10px var(--azul);
-}
-
-@keyframes carga {
-    0% { width: 0%; margin-left: 0; }
-    50% { width: 60%; margin-left: 20%; }
-    100% { width: 0%; margin-left: 100%; }
 }
 
 .progress-texto {
@@ -340,6 +314,48 @@ nav {
     text-transform: uppercase;
     color: var(--cyan);
     text-shadow: 0 0 10px var(--glow-cyan);
+}
+
+/* ANILLOS PULSANTES */
+.pulso-wrap {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pulso-anillo {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0;
+    animation: pulso-latido 2.4s ease-out infinite;
+}
+
+.pulso-1 { width: 30px; height: 30px; border: 1px solid var(--cyan); animation-delay: 0s; }
+.pulso-2 { width: 65px; height: 65px; border: 1px solid var(--azul); animation-delay: 0.7s; }
+.pulso-3 { width: 100px; height: 100px; border: 1px solid rgba(0,128,255,0.4); animation-delay: 1.4s; }
+
+@keyframes pulso-latido {
+    0% { transform: scale(0.3); opacity: 0.9; }
+    100% { transform: scale(1); opacity: 0; }
+}
+
+.pulso-nucleo {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--cyan);
+    box-shadow: 0 0 15px var(--cyan), 0 0 30px rgba(63,224,208,0.4);
+    animation: pulso-nucleo 2.4s ease-in-out infinite;
+    z-index: 1;
+}
+
+@keyframes pulso-nucleo {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.4); box-shadow: 0 0 25px var(--cyan), 0 0 50px rgba(63,224,208,0.5); }
 }
 
 .resultado-wrap {
@@ -494,28 +510,7 @@ nav {
     transition: transform 0.5s ease;
 }
 
-.ad-panel:hover img {
-    transform: scale(1.03);
-}
-
-.ad-etiqueta {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 1.2rem 1rem 1rem;
-    background: linear-gradient(transparent, rgba(5,8,16,0.9));
-    font-family: 'Orbitron', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.5em;
-    text-transform: uppercase;
-    color: var(--blanco-muted);
-}
-
-.ad-etiqueta.despues {
-    color: var(--cyan);
-    text-shadow: 0 0 10px var(--glow-cyan);
-}
+.ad-panel:hover img { transform: scale(1.03); }
 
 .ad-divisor {
     display: flex;
@@ -530,17 +525,8 @@ nav {
     gap: 0.5rem;
 }
 
-.ad-divisor-linea {
-    flex: 1;
-    width: 1px;
-    background: rgba(0,128,255,0.2);
-}
-
-.ad-divisor-icono {
-    color: var(--azul);
-    font-size: 0.7rem;
-    text-shadow: 0 0 10px var(--glow-azul);
-}
+.ad-divisor-linea { flex: 1; width: 1px; background: rgba(0,128,255,0.2); }
+.ad-divisor-icono { color: var(--azul); font-size: 0.7rem; text-shadow: 0 0 10px var(--glow-azul); }
 
 .ad-nota {
     margin-top: 1.2rem;
@@ -549,20 +535,69 @@ nav {
     letter-spacing: 0.1em;
 }
 
-@media (max-width: 600px) {
-    .ad-grid {
-        flex-direction: column;
-    }
-    .ad-divisor {
-        flex-direction: row;
-        width: 100%;
-        height: 40px;
-    }
-    .ad-divisor-linea {
-        flex: 1;
-        height: 1px;
-        width: auto;
-    }
+/* CARRUSEL */
+.carrusel-wrap {
+    position: relative;
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.carrusel-viewport { flex: 1; overflow: hidden; }
+
+.carrusel-slide { display: none; animation: fadeSlide 0.6s ease-in-out; }
+.carrusel-slide.activo { display: block; }
+
+@keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.carrusel-btn {
+    background: transparent;
+    border: 1px solid rgba(0,128,255,0.3);
+    color: var(--azul);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.carrusel-btn:hover {
+    background: rgba(0,128,255,0.1);
+    border-color: var(--azul);
+    box-shadow: 0 0 15px var(--glow-azul);
+}
+
+.carrusel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-top: 1.2rem;
+}
+
+.carrusel-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(0,128,255,0.2);
+    border: 1px solid rgba(0,128,255,0.3);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.carrusel-dot.activo {
+    background: var(--azul);
+    box-shadow: 0 0 8px var(--glow-azul);
 }
 
 /* PRECIOS */
@@ -636,14 +671,8 @@ nav {
     text-align: left;
 }
 
-.precio-card:hover {
-    background: rgba(0,128,255,0.05);
-}
-
-.precio-card.popular {
-    background: rgba(0,128,255,0.07);
-    border: 1px solid rgba(0,128,255,0.3);
-}
+.precio-card:hover { background: rgba(0,128,255,0.05); }
+.precio-card.popular { background: rgba(0,128,255,0.07); border: 1px solid rgba(0,128,255,0.3); }
 
 .popular-badge {
     position: absolute;
@@ -777,11 +806,7 @@ nav {
     box-shadow: 0 4px 30px rgba(37,211,102,0.6);
 }
 
-.wa-flotante svg {
-    width: 28px;
-    height: 28px;
-    fill: white;
-}
+.wa-flotante svg { width: 28px; height: 28px; fill: white; }
 
 .wa-tooltip {
     position: absolute;
@@ -799,13 +824,61 @@ nav {
     font-family: 'Orbitron', monospace;
 }
 
-.wa-flotante:hover .wa-tooltip {
-    opacity: 1;
-}
+.wa-flotante:hover .wa-tooltip { opacity: 1; }
 
 @keyframes wa-entrada {
     from { opacity: 0; transform: scale(0); }
     to { opacity: 1; transform: scale(1); }
+}
+
+/* PRÓXIMAMENTE */
+.proximamente {
+    position: relative;
+    z-index: 1;
+    padding: 5rem 6%;
+    text-align: center;
+}
+
+.prox-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    max-width: 600px;
+    margin: 0 auto 2rem;
+    text-align: left;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s ease-out;
+}
+
+.prox-item.visible { opacity: 1; transform: translateY(0); }
+
+.prox-version {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    color: var(--azul);
+    background: rgba(0,128,255,0.1);
+    border: 1px solid rgba(0,128,255,0.2);
+    padding: 0.3rem 0.7rem;
+    white-space: nowrap;
+    margin-top: 0.2rem;
+    flex-shrink: 0;
+}
+
+.prox-content h3 {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--blanco);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.4rem;
+}
+
+.prox-content p {
+    font-size: 0.82rem;
+    color: var(--blanco-muted);
+    line-height: 1.7;
 }
 
 footer {
@@ -840,6 +913,10 @@ footer {
     .acciones { grid-template-columns: 1fr 1fr; }
     footer { flex-direction: column; text-align: center; }
     .hero-titulo { font-size: 1.6rem; }
+    .carrusel-btn { display: none; }
+    .ad-grid { flex-direction: column; }
+    .ad-divisor { flex-direction: row; width: 100%; height: 40px; }
+    .ad-divisor-linea { flex: 1; height: 1px; width: auto; }
 }
 </style>
 </head>
@@ -899,7 +976,7 @@ footer {
 
     <div class="upload-zone" id="uploadZone">
         <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.webp">
-        <div class="upload-icon">⬡</div>
+        <canvas id="lottieShutter" width="80" height="80" style="margin:0 auto 0.75rem;display:block;filter:drop-shadow(0 0 12px rgba(0,128,255,0.7));"></canvas>
         <div class="upload-texto">Arrastra tu fotografía aquí</div>
         <div class="upload-sub">JPG · PNG · WEBP · Máx. 20MB</div>
     </div>
@@ -929,8 +1006,11 @@ footer {
     </button>
 
     <div class="progress-wrap" id="progressWrap">
-        <div class="progress-barra-wrap">
-            <div class="progress-barra"></div>
+        <div class="pulso-wrap">
+            <div class="pulso-anillo pulso-1"></div>
+            <div class="pulso-anillo pulso-2"></div>
+            <div class="pulso-anillo pulso-3"></div>
+            <div class="pulso-nucleo"></div>
         </div>
         <div class="progress-texto">Procesando con IA · Por favor espera...</div>
     </div>
@@ -971,7 +1051,7 @@ footer {
     </div>
 </section>
 
-<!-- ANTES / DESPUÉS -->
+<!-- CARRUSEL ANTES / DESPUÉS -->
 <div class="separador">
     <div class="sep-linea"></div>
     <div class="sep-glifo">◆</div>
@@ -983,21 +1063,49 @@ footer {
     <h2 class="precios-titulo">Antes y después</h2>
     <p class="precios-sub">Fotografías reales procesadas con Nahual Studio. Sin retoques adicionales.</p>
 
-    <div class="ad-grid">
-        <div class="ad-panel">
-            <img src="/static/img/01.jpg" alt="Fotografía original dañada">
+    <div class="carrusel-wrap">
+        <button class="carrusel-btn" onclick="moverCarrusel(-1)">‹</button>
+        <div class="carrusel-viewport">
+            <div class="carrusel-slide">
+                <div class="ad-grid">
+                    <div class="ad-panel"><img src="/static/img/01.jpg" alt="Antes"></div>
+                    <div class="ad-divisor"><div class="ad-divisor-linea"></div><div class="ad-divisor-icono">◆</div><div class="ad-divisor-linea"></div></div>
+                    <div class="ad-panel"><img src="/static/img/02.jpg" alt="Después"></div>
+                </div>
+            </div>
+            <div class="carrusel-slide">
+                <div class="ad-grid">
+                    <div class="ad-panel"><img src="/static/img/03a.jpg" alt="Antes"></div>
+                    <div class="ad-divisor"><div class="ad-divisor-linea"></div><div class="ad-divisor-icono">◆</div><div class="ad-divisor-linea"></div></div>
+                    <div class="ad-panel"><img src="/static/img/03b.jpg" alt="Después"></div>
+                </div>
+            </div>
+            <div class="carrusel-slide">
+                <div class="ad-grid">
+                    <div class="ad-panel"><img src="/static/img/04a.jpg" alt="Antes"></div>
+                    <div class="ad-divisor"><div class="ad-divisor-linea"></div><div class="ad-divisor-icono">◆</div><div class="ad-divisor-linea"></div></div>
+                    <div class="ad-panel"><img src="/static/img/04b.jpg" alt="Después"></div>
+                </div>
+            </div>
+            <div class="carrusel-slide">
+                <div class="ad-grid">
+                    <div class="ad-panel"><img src="/static/img/05a.jpg" alt="Antes"></div>
+                    <div class="ad-divisor"><div class="ad-divisor-linea"></div><div class="ad-divisor-icono">◆</div><div class="ad-divisor-linea"></div></div>
+                    <div class="ad-panel"><img src="/static/img/05b.jpg" alt="Después"></div>
+                </div>
+            </div>
         </div>
-        <div class="ad-divisor">
-            <div class="ad-divisor-linea"></div>
-            <div class="ad-divisor-icono">◆</div>
-            <div class="ad-divisor-linea"></div>
-        </div>
-        <div class="ad-panel">
-            <img src="/static/img/02.jpg" alt="Fotografía restaurada">
-        </div>
+        <button class="carrusel-btn" onclick="moverCarrusel(1)">›</button>
     </div>
 
-    <p class="ad-nota">* Imagen compartida con autorización. Resultado obtenido en menos de 2 minutos.</p>
+    <div class="carrusel-dots">
+        <span class="carrusel-dot activo" onclick="irASlide(0)"></span>
+        <span class="carrusel-dot" onclick="irASlide(1)"></span>
+        <span class="carrusel-dot" onclick="irASlide(2)"></span>
+        <span class="carrusel-dot" onclick="irASlide(3)"></span>
+    </div>
+
+    <p class="ad-nota">* Imágenes compartidas con autorización. Resultados obtenidos en menos de 2 minutos.</p>
 </section>
 
 <!-- SECCIÓN DE PRECIOS -->
@@ -1014,7 +1122,6 @@ footer {
     <div class="oferta-badge">⚡ Oferta de lanzamiento — Precio especial</div>
 
     <div class="precios-grid">
-
         <div class="precio-card">
             <div class="precio-nombre">Básico</div>
             <div class="precio-original">$80 MXN</div>
@@ -1026,9 +1133,7 @@ footer {
                 <li>Restaurar, colorizar o mejorar</li>
                 <li>Descarga en alta resolución</li>
             </ul>
-            <a href="https://wa.me/529721306046?text=Hola,%20quiero%20el%20plan%20B%C3%A1sico" class="btn-precio" target="_blank">
-                Comenzar →
-            </a>
+            <a href="https://wa.me/529721306046?text=Hola,%20quiero%20el%20plan%20B%C3%A1sico" class="btn-precio" target="_blank">Comenzar →</a>
         </div>
 
         <div class="precio-card popular">
@@ -1044,9 +1149,7 @@ footer {
                 <li>Descarga en alta resolución</li>
                 <li>Soporte prioritario</li>
             </ul>
-            <a href="https://wa.me/529721306046?text=Hola,%20quiero%20el%20plan%20Est%C3%A1ndar" class="btn-precio" target="_blank">
-                Comenzar →
-            </a>
+            <a href="https://wa.me/529721306046?text=Hola,%20quiero%20el%20plan%20Est%C3%A1ndar" class="btn-precio" target="_blank">Comenzar →</a>
         </div>
 
         <div class="precio-card">
@@ -1063,11 +1166,53 @@ footer {
                 <li>Ideal para fotógrafos</li>
                 <li>Soporte directo por WhatsApp</li>
             </ul>
-            <a href="https://wa.me/529721306046?text=Hola,%20quiero%20el%20plan%20Profesional" class="btn-precio" target="_blank">
-                Comenzar →
-            </a>
+            <a href="https://wa.me/529721306046?text=Hola,%20quiero%20el%20plan%20Profesional" class="btn-precio" target="_blank">Comenzar →</a>
         </div>
+    </div>
+</section>
 
+<!-- PRÓXIMAMENTE -->
+<div class="separador">
+    <div class="sep-linea"></div>
+    <div class="sep-glifo">◆</div>
+    <div class="sep-linea"></div>
+</div>
+
+<section class="proximamente" id="proximamente">
+    <p class="precios-eyebrow">// Versión actual: Web Beta</p>
+    <h2 class="precios-titulo">Lo que viene</h2>
+    <p class="precios-sub" style="margin-bottom:3rem;">Esta es la versión web de acceso anticipado. Estamos trabajando en mejoras significativas que llegarán próximamente.</p>
+
+    <div class="prox-item" data-delay="0">
+        <div class="prox-version">v1.1</div>
+        <div class="prox-content">
+            <h3>Resolución Ultra HD</h3>
+            <p>Integración con Real-ESRGAN para upscaling de alta fidelidad. Las imágenes restauradas alcanzarán resolución equivalente a 4K, preservando cada detalle.</p>
+        </div>
+    </div>
+
+    <div class="prox-item" data-delay="150">
+        <div class="prox-version">v1.2</div>
+        <div class="prox-content">
+            <h3>Procesamiento por lotes</h3>
+            <p>Sube múltiples fotografías y procésalas en una sola sesión. Ideal para colecciones familiares o proyectos de archivo histórico.</p>
+        </div>
+    </div>
+
+    <div class="prox-item" data-delay="300">
+        <div class="prox-version">v2.0</div>
+        <div class="prox-content">
+            <h3>Aplicación local — Sin límites</h3>
+            <p>ValDy Photo-Mod: una aplicación de escritorio que procesa directamente en tu equipo. Sin tokens, sin conexión requerida, con la máxima calidad disponible.</p>
+        </div>
+    </div>
+
+    <div class="prox-item" data-delay="450">
+        <div class="prox-version">v2.1</div>
+        <div class="prox-content">
+            <h3>Eliminación y cambio de fondo con IA</h3>
+            <p>Extrae sujetos con precisión quirúrgica y colócalos en cualquier entorno. Resultados de calidad profesional sin conocimientos de edición.</p>
+        </div>
     </div>
 </section>
 
@@ -1155,6 +1300,10 @@ async function procesar() {
             document.getElementById('btnDescargar').href = `/descargar/${resultadoId}`;
             document.getElementById('resultadoWrap').style.display = 'block';
             document.getElementById('resultadoWrap').scrollIntoView({ behavior: 'smooth' });
+            // Actualizar tokens
+            const sesRes = await fetch('/sesion');
+            const sesData = await sesRes.json();
+            if (sesData.logueado) document.getElementById('navTokens').textContent = `◆ ${sesData.tokens} tokens`;
         }
     } catch (e) {
         document.getElementById('progressWrap').style.display = 'none';
@@ -1184,10 +1333,61 @@ function mostrarError(msg) {
 function ocultarError() { document.getElementById('msgError').style.display = 'none'; }
 function ocultarResultado() { document.getElementById('resultadoWrap').style.display = 'none'; }
 
-// ==================== AUTH ====================
-function abrirModal() {
-    document.getElementById('modalAuth').style.display = 'flex';
+// ==================== LOTTIE ====================
+window.addEventListener('load', () => {
+    try {
+        new DotLottie({
+            autoplay: true,
+            loop: true,
+            canvas: document.getElementById('lottieShutter'),
+            src: '/static/animations/Cam_Shutter.lottie',
+        });
+    } catch(e) { console.log('Lottie:', e); }
+});
+
+// ==================== CARRUSEL ====================
+let slideActual = 0;
+const totalSlides = 4;
+let autoCarrusel;
+
+function irASlide(n) {
+    const slides = document.querySelectorAll('.carrusel-slide');
+    const dots = document.querySelectorAll('.carrusel-dot');
+    slides[slideActual].classList.remove('activo');
+    dots[slideActual].classList.remove('activo');
+    slideActual = (n + totalSlides) % totalSlides;
+    slides[slideActual].classList.add('activo');
+    dots[slideActual].classList.add('activo');
 }
+
+function moverCarrusel(dir) {
+    clearInterval(autoCarrusel);
+    irASlide(slideActual + dir);
+    iniciarAutoCarrusel();
+}
+
+function iniciarAutoCarrusel() {
+    autoCarrusel = setInterval(() => irASlide(slideActual + 1), 5000);
+}
+
+document.querySelectorAll('.carrusel-slide')[0].classList.add('activo');
+iniciarAutoCarrusel();
+
+// ==================== SCROLL REVEAL ====================
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const delay = parseInt(entry.target.dataset.delay || 0);
+            setTimeout(() => entry.target.classList.add('visible'), delay);
+            observer.unobserve(entry.target);
+        }
+    });
+}, { threshold: 0.2 });
+
+document.querySelectorAll('.prox-item').forEach(el => observer.observe(el));
+
+// ==================== AUTH ====================
+function abrirModal() { document.getElementById('modalAuth').style.display = 'flex'; }
 function cerrarModal() {
     document.getElementById('modalAuth').style.display = 'none';
     document.getElementById('authMsg').textContent = '';
@@ -1212,14 +1412,11 @@ function actualizarNavUsuario(datos) {
     const navU = document.getElementById('navUsuario');
     navU.style.display = 'flex';
     document.getElementById('navTokens').textContent = `◆ ${datos.tokens} tokens`;
-    
     if (datos.es_admin) {
         const btnAdmin = document.createElement('a');
         btnAdmin.href = '/admin';
         btnAdmin.textContent = 'ADMIN';
-        btnAdmin.style.cssText = 'background:transparent;border:1px solid var(--cyan);color:var(--cyan);padding:0.4rem 0.8rem;font-family:Orbitron,monospace;font-size:0.55rem;letter-spacing:0.15em;text-decoration:none;transition:0.3s;';
-        btnAdmin.onmouseover = () => { btnAdmin.style.background = 'rgba(63,224,208,0.1)'; };
-        btnAdmin.onmouseout = () => { btnAdmin.style.background = 'transparent'; };
+        btnAdmin.style.cssText = 'background:transparent;border:1px solid var(--cyan);color:var(--cyan);padding:0.4rem 0.8rem;font-family:Orbitron,monospace;font-size:0.55rem;letter-spacing:0.15em;text-decoration:none;';
         navU.insertBefore(btnAdmin, navU.firstChild);
     }
 }
